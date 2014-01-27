@@ -17,31 +17,28 @@ namespace DocGeneratorTest
 
         private void button1_Click(object sender, RibbonControlEventArgs e){
             Excel.Application xlApp;
-            Excel.Workbook xlWorkBook;
-            Excel.Workbook xlWorkBook2;
-            Excel._Worksheet xlWorkSheet;
-            Excel._Worksheet xlWorkSheet2;
-            Excel.Range xlRange;
-            //Excel.Range xlRange2;
+            Workbook xlWorkBookTemplate = new Excel.Workbook();
+            Workbook xlWorkBookData = new Excel.Workbook();
+            _Worksheet xlWorkSheetTemplate=xlWorkBookTemplate.Sheets[1] ;
+            _Worksheet xlWorkSheetData=xlWorkBookData.Sheets[1];
+            Range xlRange;
             xlApp = new Excel.Application();
             object misValue = System.Reflection.Missing.Value;
             try
             {
-                //1. Lê o template e procura pelos campos marcados
-                xlWorkBook = xlApp.Workbooks.Open(@"C:\Users\augusto-ortiz\Desktop\TemplateTeste.xlsm");
-                xlWorkSheet = xlWorkBook.Sheets[1];
-                xlRange = xlWorkSheet.UsedRange;
+                //1. Reads the template and searches for the marked fields
+                xlWorkBookTemplate = xlApp.Workbooks.Open(@"C:\Users\augusto-ortiz\Desktop\TemplateTeste.xlsm");
+                xlWorkSheetTemplate = xlWorkBookTemplate.Sheets[1];
+                xlRange = xlWorkSheetTemplate.UsedRange;
 
                 int rowCount = xlRange.Rows.Count;
                 int colCount = xlRange.Columns.Count;
                 int firstRow = xlRange.Row;
                 int firstCol = xlRange.Column;
 
-                string[,] contentMatrix;
                 string cellText;
                 int numOfItems = 0;
-                contentMatrix = new string[rowCount + 1,colCount + 1];
-                ////a.Calcula número de itens a serem preenchidos no template para dimensionar a matriz de mapeamento             
+                ////a. Counts the number of items to size the mapping matrix accordingly
                 for (int i = 1; i < rowCount + 1; i++)
                 {
                     for (int j = 1; j < colCount + 1; j++)
@@ -54,12 +51,10 @@ namespace DocGeneratorTest
                     }
                 }
                 string[,] mappingMatrix;
-                mappingMatrix = new string[numOfItems, 4];
-                //b.Preenche a matriz de mapeamento
+                int mappingColumns = 4;//[fieldname, sheet row, sheet col, table col]
+                mappingMatrix = new string[numOfItems, mappingColumns];
+                //b.Fills the mapping matrix
                 int aux = 0;
-                //int[] aux2;
-                //aux2 = new int[3];
-                //Dictionary<string, int[]> fieldMap = new Dictionary<string, int[]>();
                 for (int i = 1; i < rowCount + 1; i++)
                 {
                     for (int j = 1; j < colCount + 1; j++)
@@ -67,12 +62,8 @@ namespace DocGeneratorTest
                         if (xlRange.Cells[i, j].Value2 != null)
                         {
                             cellText = xlRange.Cells[i, j].Value2.ToString();
-                            if (cellText.StartsWith("#") == true)//criar função que procura determinado prefixo e retira o conteúdo pertinente
+                            if (cellText.StartsWith("#") == true)//change it for a function that searches a custom prefix and extracts the relevant content
                             {
-                                //aux2[0] = i;
-                                //aux2[1] = j;
-                                //aux2[2] = aux+1;
-                                //fieldMap.Add(cellText,aux2);
                                 mappingMatrix[aux, 0] = cellText;
                                 mappingMatrix[aux, 1] = (i+firstRow-1).ToString();
                                 mappingMatrix[aux, 2] = (j+firstCol-1).ToString();
@@ -82,28 +73,31 @@ namespace DocGeneratorTest
                         }
                     }
                 }
-                //2.Cria o esqueleto da planilha de dados e preenche a linha de cabeçalho
-                xlWorkBook2 = xlApp.Workbooks.Open(@"C:\Users\augusto-ortiz\Desktop\DataTeste.xlsm");
-                xlWorkSheet2 = (Excel.Worksheet)xlWorkBook2.Worksheets.get_Item(1);
+                //2.Builds the data sheet and fills its header line
+                xlWorkBookData = xlApp.Workbooks.Open(@"C:\Users\augusto-ortiz\Desktop\DataTeste.xlsm");
+                xlWorkSheetData = (Excel.Worksheet)xlWorkBookData.Worksheets.get_Item(1);
                 int headerRow = 1;
                 int atualCol, atualRow;
                 for (int i = 0; i < numOfItems ; i++)
                 {
                     atualCol = Convert.ToInt32(mappingMatrix[i, 2]);
                     atualRow = Convert.ToInt32(mappingMatrix[i, 1]);
-                    xlWorkSheet2.Cells[headerRow, i+1] = xlWorkSheet.Cells[atualRow, atualCol];
+                    xlWorkSheetData.Cells[headerRow, i+1] = xlWorkSheetTemplate.Cells[atualRow, atualCol];
                 }
-                xlWorkBook.Close(true, misValue, misValue);
-                xlWorkBook2.Close(true, misValue, misValue);
-                xlApp.Quit();
-                releaseObject(xlWorkSheet);
-                releaseObject(xlWorkBook);
-                releaseObject(xlApp);
             }
             catch (Exception)
             {
                 MessageBox.Show("Unable to open file ");
                 xlApp.Quit();
+                releaseObject(xlApp);
+            }
+            finally
+            {
+                xlWorkBookTemplate.Close(true, misValue, misValue);
+                xlWorkBookData.Close(true, misValue, misValue);
+                xlApp.Quit();
+                releaseObject(xlWorkSheetTemplate);
+                releaseObject(xlWorkBookTemplate);
                 releaseObject(xlApp);
             }
         }
@@ -112,55 +106,53 @@ namespace DocGeneratorTest
 
         private void button2_Click(object sender, RibbonControlEventArgs e)
         {
-            Excel.Application xlApp;
-            Excel.Workbook xlWorkBook;
-            Excel.Workbook xlWorkBook2;
-            Excel._Worksheet xlWorkSheet;
-            Excel._Worksheet xlWorkSheet2;
-            Excel.Range xlRange;
-            Excel.Range xlRange2;
-            xlApp = new Excel.Application();
+            Excel.Application xlApp = new Excel.Application();
+            Workbook xlWorkBookTemplate = new Excel.Workbook();
+            Workbook xlWorkBookData = new Excel.Workbook();
+            _Worksheet xlWorkTemplate = xlWorkBookTemplate.Sheets[1];
+            _Worksheet xlWorkData = xlWorkBookData.Sheets[1];;
+            Range xlRangeTemplate;
+            Range xlRangeData;
             object misValue = System.Reflection.Missing.Value;
             try
             {
-                //1. Lê o template marcado
-                xlWorkBook = xlApp.Workbooks.Open(@"C:\Users\augusto-ortiz\Desktop\TemplateTeste.xlsm");//substituir com caminho fornecido pelo usuário
-                xlWorkSheet = xlWorkBook.Sheets[1];
-                xlRange = xlWorkSheet.UsedRange;
+                //1. Reads the marked template
+                xlWorkBookTemplate = xlApp.Workbooks.Open(@"C:\Users\augusto-ortiz\Desktop\TemplateTeste.xlsm");//replace it with a user generated path through a form 
+                xlWorkTemplate = xlWorkBookTemplate.Sheets[1];
+                xlRangeTemplate = xlWorkTemplate.UsedRange;
 
-                int rowCount = xlRange.Rows.Count;
-                int colCount = xlRange.Columns.Count;
-                int firstRow = xlRange.Row;
-                int firstCol = xlRange.Column;
+                int rowCount = xlRangeTemplate.Rows.Count;
+                int colCount = xlRangeTemplate.Columns.Count;
+                int firstRow = xlRangeTemplate.Row;
+                int firstCol = xlRangeTemplate.Column;
 
-                string[,] contentMatrix;
                 string cellText;
                 int numOfItems = 0;
-                contentMatrix = new string[rowCount + 1, colCount + 1];
-                ////a.Calcula número de itens a serem preenchidos no template para dimensionar a matriz de mapeamento             
+                ////a.Counts the number of items to size the mapping matrix accordingly             
                 for (int i = 1; i < rowCount + 1; i++)
                 {
                     for (int j = 1; j < colCount + 1; j++)
                     {
-                        if (xlRange.Cells[i, j].Value2 != null)
+                        if (xlRangeTemplate.Cells[i, j].Value2 != null)
                         {
-                            cellText = xlRange.Cells[i, j].Value2.ToString();
+                            cellText = xlRangeTemplate.Cells[i, j].Value2.ToString();
                             if (cellText.StartsWith("#") == true) numOfItems++;//tratar como não contar mesmos fields para itens distintos
                         }
                     }
                 }
                 string[,] mappingMatrix;
-                mappingMatrix = new string[numOfItems, 4];
-                //b.Preenche a matriz de mapeamento cujo formato é: [fieldname, sheet row, sheet col, table col]
+                int mappingColumns = 4;
+                mappingMatrix = new string[numOfItems, mappingColumns];
+                //b.Fills the mapping matrix whose format it's [fieldname, sheet row, sheet col, table col]
                 int aux = 0;
                 for (int i = 1; i < rowCount + 1; i++)
                 {
                     for (int j = 1; j < colCount + 1; j++)
                     {
-                        if (xlRange.Cells[i, j].Value2 != null)
+                        if (xlRangeTemplate.Cells[i, j].Value2 != null)
                         {
-                            cellText = xlRange.Cells[i, j].Value2.ToString();
-                            if (cellText.StartsWith("#") == true)//criar função que procura determinado prefixo e retira o conteúdo pertinente
+                            cellText = xlRangeTemplate.Cells[i, j].Value2.ToString();
+                            if (cellText.StartsWith("#") == true)//change it for a function that searches a custom prefix and extracts the relevant content
                             {
                                 mappingMatrix[aux, 0] = cellText;
                                 mappingMatrix[aux, 1] = (i + firstRow - 1).ToString();
@@ -171,78 +163,98 @@ namespace DocGeneratorTest
                         }
                     }
                 }
-                //2.Checa/completa o mapeamento com a parte da planilha de dados
-                xlWorkBook2 = xlApp.Workbooks.Open(@"C:\Users\augusto-ortiz\Desktop\DataTestefilled.xlsm");//substituir com caminho fornecido pelo usuário
-                xlWorkSheet2 = (Excel.Worksheet)xlWorkBook2.Worksheets.get_Item(1);//planilha diferente?
-                xlRange2 = xlWorkSheet2.UsedRange;
-                int headerRow = 1;//tornar constante?
-                int atualCol, atualRow;
+                //2.Checks/completes the mapping matrix with its data sheet relevant content
+                xlWorkBookData = xlApp.Workbooks.Open(@"C:\Users\augusto-ortiz\Desktop\DataTestefilled.xlsm");//replace it with a user generated path through a form 
+                xlWorkData = (Excel.Worksheet)xlWorkBookData.Worksheets.get_Item(1);//different sheet? 
+                xlRangeData = xlWorkData.UsedRange;
+                int headerRow = 1;//make it a constant?
                 string colField;
                 bool foundAllFields = true;
-                int tableItems = xlRange2.Columns.Count;
-                long tableRows = xlRange2.Rows.Count;
-                //a. Varre cada fieldname da matriz de mapeamento e procura na planilha de dados para completar o mapeamento
+                int tableItems = xlRangeData.Columns.Count;
+                long tableRows = xlRangeData.Rows.Count;
+                //a. Iterates through each fieldname in the mapping mattrix and searches it in the data sheet in order to complete the mapping
                 for (int i = 0; i < numOfItems; i++)
                 {
                     cellText = mappingMatrix[i, 0];
                     for(int j=0; j<tableItems;j++)
                     {
-                        colField = xlWorkSheet2.Cells[headerRow, j + 1].Value2.ToString();
+                        colField = xlWorkData.Cells[headerRow, j + 1].Value2.ToString();
                         foundAllFields = false;
                         if(colField==cellText)
                         {
                             mappingMatrix[i, 3] = (j + 1).ToString();
-                            foundAllFields = true;//tratar exceção em que fieldname do template não é encontrado na planilha de dados
+                            foundAllFields = true;//work in the 'template not found in data sheet' exception
                         }
                     }
                 }
-                //3. Abstração dos dados com base no mapeamento validado
-                //Abstrai planilha de dados
+                //3. Data abstraction using the mapping matrix
+                //Abstracts the data sheet
                 Dictionary<long, Dictionary<string, string>> Table = new Dictionary<long, Dictionary<string, string>>();
                 string fieldName, fieldValue;
                 int col;
-                for (int i = headerRow+1; i < tableRows; i++)//seleciona linha
+                for (int i = headerRow+1; i < tableRows; i++)//selects row
                 {
-                    //Pega as coordenadas da matriz de mapeamento e adiciona o fieldname e o fieldvalue ao dicionário
+                    //Gets the coordinates in the mapping matrix and adds the fieldname and fieldvalue to the dictionary
                     Dictionary<string, string> Row = new Dictionary<string, string>();
                     for(int j=0; j<numOfItems; j++)
                     {
                         fieldName = mappingMatrix[j, 0];
                         col = Convert.ToInt32(mappingMatrix[j, 3]);
-                        fieldValue = xlWorkSheet2.Cells[i, col].Value2.ToString();
+                        fieldValue = xlWorkData.Cells[i, col].Value2.ToString();
                         Row.Add(fieldName, fieldValue);
                     }
                     Table.Add(i, Row);
                 }
-                //Abstrai Sheet preenchida(inicialmente só possui 1 item, adicionar mais futuramente)
-                Dictionary<long, Dictionary<string, string>> Sheet = new Dictionary<long, Dictionary<string, string>>();
-                string propName, propValue;
-                long items = 5;
-                //Depois iterar para cada item da sheet
-                for (long i = 1; i != items; i++)
+                //Abstracts Filled Template (initially containing just 1 item, add more in the future)
+                List<Dictionary<long, Dictionary<string, string>>> Sheets =
+                    new List<Dictionary<long, Dictionary<string, string>>>();
+                int sheetItems = 1;
+                int numOfSheets = Table.Count/sheetItems;
+                
+                foreach (long key in Table.Keys)// selects a row in the table
                 {
-                    Dictionary<string, string> Item = new Dictionary<string, string>();
-                    //copia campos salvos em Row no Item
-                    foreach (long key in Table.Keys)
+                    for(int sheetCounter=0; sheetCounter!=sheetItems; )
                     {
-                        foreach (KeyValuePair<string, string> propPair in Table[key])
+                        Dictionary<long, Dictionary<string, string>> Sheet = new Dictionary<long, Dictionary<string, string>>();
+                        Dictionary<string, string> Item = new Dictionary<string, string>();
+                        Item = Table[key];
+                        Sheet.Add(key, Item);
+                        sheetCounter++;
+                        if(sheetCounter==sheetItems)
                         {
-                            propName = propPair.Key;
-                            propValue = propPair.Value;
-                            Item.Add(propName, propValue);
+                            Sheets.Add(Sheet);        
                         }
-                        //Table.Remove(key);
-                        Sheet.Add(i, Item);
                     }
                 }
-                //4.Pega dados da Sheet abstraída e preenche cada folha do documento final usando o mapeamentoxlWorkBook.Close(true, misValue, misValue);// passar liberação dos recursos para o bloco de finally
-                xlWorkBook2.Close(true, misValue, misValue);
-                releaseObject(xlWorkSheet);
-                releaseObject(xlWorkSheet2);
-                releaseObject(xlWorkBook);
-                releaseObject(xlWorkBook2);
-                xlApp.Quit();
-                releaseObject(xlApp);
+                //4.Gets the abstracted Filled Template and builds each page of the final document using the mapping matrix
+                string propName, propValue;
+                int row;
+                int space = 0;
+                foreach (var Sheet in Sheets)
+                {
+                    foreach (long key in Sheet.Keys)
+                    {
+                        xlWorkTemplate = (Excel.Worksheet)xlWorkBookTemplate.Worksheets.get_Item(1);
+                        foreach (KeyValuePair<string, string>ItemProp in Sheet[key])
+                        {
+                            propName = ItemProp.Key;//Reads fieldName
+                            //Searches fieldName in mapping matrix
+                            row = 0;
+                            col = 0;
+                            for (int j = 0; j != numOfItems; j++)
+                            {
+                                if (mappingMatrix[j, 0] == propName)//Gets coordinates in matrix
+                                {
+                                    row = Convert.ToInt32(mappingMatrix[j, 1]);
+                                    col = Convert.ToInt32(mappingMatrix[j, 2]);
+                                }
+                            }
+                            propValue = ItemProp.Value;
+                            xlWorkTemplate.Cells[row+space*rowCount, col] = propValue;//Fill template with the pertinent data
+                        }
+                    }
+                    space++;
+                }
             }
             catch (Exception)
             {
@@ -250,16 +262,18 @@ namespace DocGeneratorTest
                 xlApp.Quit();
                 releaseObject(xlApp);
             }
-            finally
+                finally
             {
-                //xlApp.Quit();
-                //releaseObject(xlApp);
+                xlWorkBookData.Close(true, misValue, misValue);
+                xlWorkBookTemplate.Close(true, misValue, misValue);
+                xlApp.Quit();
+                releaseObject(xlWorkTemplate);
+                releaseObject(xlWorkData);
+                releaseObject(xlWorkBookTemplate);
+                releaseObject(xlWorkBookData);
+                releaseObject(xlApp);
             }
-
         }
-
-        
-
         private void releaseObject(object obj)
         {
             try
@@ -271,10 +285,6 @@ namespace DocGeneratorTest
             {
                 obj = null;
                 MessageBox.Show("Unable to release the Object " + ex.ToString());
-            }
-            finally
-            {
-                GC.Collect();
             }
         }
     }
