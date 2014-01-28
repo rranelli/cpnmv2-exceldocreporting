@@ -8,7 +8,6 @@ using Microsoft.Office.Tools.Ribbon;
 using Excel = Microsoft.Office.Interop.Excel; 
 namespace DocGeneratorTest
 {
-    
     public partial class Ribbon1
     {
         private const int mappingColumns = 4; //[fieldname, sheet row, sheet col, table col]    
@@ -19,9 +18,9 @@ namespace DocGeneratorTest
         {
 
         }
-
-        private void button1_Click(object sender, RibbonControlEventArgs e)
+        private void button1_Click(object sender, RibbonControlEventArgs e)//Preparar Documento
         {
+            
             //string fileName = @"C:\Users\augusto-ortiz\Desktop\TemplateTeste.xlsm";
             //if (this.openFileDialog1.ShowDialog() == DialogResult.OK)
             //{
@@ -43,14 +42,20 @@ namespace DocGeneratorTest
             //    //Selection.TypeParagraph();
             //}
             Excel.Application xlApp;
-            Workbook xlWorkBookTemplate = new Excel.Workbook();
-            Workbook xlWorkBookData = new Excel.Workbook();
-            _Worksheet xlWorkSheetTemplate=xlWorkBookTemplate.Sheets[1] ;
-            _Worksheet xlWorkSheetData=xlWorkBookData.Sheets[1];
+            Workbook xlWorkBookTemplate = null;
+            Workbook xlWorkBookData = null;
+            _Worksheet xlWorkSheetTemplate = null;
+            _Worksheet xlWorkSheetData = null;
             Range xlRange;
             xlApp = new Excel.Application();
             xlApp.Visible = true;
+
+            var form = new Form1();
+            form.ShowDialog();
+            string templateFilePath2 = form.templateFilePath;
+            form.Close();
             object misValue = System.Reflection.Missing.Value;
+
             try
             {
                 //1. Reads the template and searches for the marked fields
@@ -66,8 +71,9 @@ namespace DocGeneratorTest
                 int firstCol = xlRange.Column;
 
                 string cellText;
-                int numOfItems = 0;
-                ////a. Counts the number of items to size the mapping matrix accordingly
+                int numOfProps = 0;
+                int countAllProps = 0;
+                //a. Counts the number of distinct items properties to size the mapping matrix accordingly (its considered that all the items in a particular template sheet shares the same properties and theres at least 1 item)
                 for (int i = 1; i < rowCount + 1; i++)
                 {
                     for (int j = 1; j < colCount + 1; j++)
@@ -75,13 +81,14 @@ namespace DocGeneratorTest
                         if (xlRange.Cells[i, j].Value2 != null)
                         {
                             cellText = xlRange.Cells[i, j].Value2.ToString();
-                            if (cellText.StartsWith("#") == true) numOfItems++;
+                            if (cellText.StartsWith("##Item") == true) countAllProps++;
+                            if (cellText.StartsWith("##Item-01") == true) numOfProps++;
                         }
                     }
                 }
-                string[,] mappingMatrix;
-                //int mappingColumns = 4;//[fieldname, sheet row, sheet col, table col]
-                mappingMatrix = new string[numOfItems, mappingColumns];
+
+                int numOfItems = countAllProps/numOfProps;//useless for this button, kill it?
+                string[,] mappingMatrix = new string[numOfProps, mappingColumns];//[fieldname, sheet row, sheet col, table col]
                 //b.Fills the mapping matrix
                 int aux = 0;
                 for (int i = 1; i < rowCount + 1; i++)
@@ -91,9 +98,10 @@ namespace DocGeneratorTest
                         if (xlRange.Cells[i, j].Value2 != null)
                         {
                             cellText = xlRange.Cells[i, j].Value2.ToString();
-                            if (cellText.StartsWith("#") == true)//change it for a function that searches a custom prefix and extracts the relevant content
+                            if (cellText.StartsWith("##Item-01") == true)//change it for a function that searches a custom prefix and extracts the relevant content
                             {
-                                mappingMatrix[aux, 0] = cellText;
+                                //mappingMatrix[aux, 0] = cellText;//fieldname
+                                mappingMatrix[aux, 0] = ExtractMarkContent(cellText)[1];//fieldname
                                 mappingMatrix[aux, 1] = (i+firstRow-1).ToString();
                                 mappingMatrix[aux, 2] = (j+firstCol-1).ToString();
                                 mappingMatrix[aux, 3] = (aux + 1).ToString();
@@ -107,7 +115,7 @@ namespace DocGeneratorTest
                 xlWorkSheetData = (Excel.Worksheet)xlWorkBookData.Worksheets.get_Item(1);
                 int headerRow = 1;
                 int atualCol, atualRow;
-                for (int i = 0; i < numOfItems ; i++)
+                for (int i = 0; i < numOfProps ; i++)
                 {
                     atualCol = Convert.ToInt32(mappingMatrix[i, 2]);
                     atualRow = Convert.ToInt32(mappingMatrix[i, 1]);
@@ -132,13 +140,14 @@ namespace DocGeneratorTest
         }
         private void button2_Click(object sender, RibbonControlEventArgs e)
         {
-            Excel.Application xlApp = new Excel.Application();
-            Workbook xlWorkBookTemplate = new Excel.Workbook();
-            Workbook xlWorkBookData = new Excel.Workbook();
-            _Worksheet xlWorkTemplate = xlWorkBookTemplate.Sheets[1];
-            _Worksheet xlWorkData = xlWorkBookData.Sheets[1];;
+            Excel.Application xlApp;
+            Workbook xlWorkBookTemplate = null;
+            Workbook xlWorkBookData = null;
+            _Worksheet xlWorkTemplate = null;
+            _Worksheet xlWorkData = null;
             Range xlRangeTemplate;
             Range xlRangeData;
+            xlApp = new Excel.Application();
             object misValue = System.Reflection.Missing.Value;
             try
             {
@@ -313,18 +322,36 @@ namespace DocGeneratorTest
                 MessageBox.Show("Unable to release the Object " + ex.ToString());
             }
         }
-        private int ExtractItemNumberinMark()// Mark format = #Item-i#propName
+        private string[] ExtractMarkContent(string markedContent)// Mark format = #Item-i#propName
         {
-            string markContent = "#Item-1#TAG";
-            string aux,aux2;
-            //new char() = # ;
-            aux = markContent.Split("#");
-            aux2 = markContent.Substring();
-
+            //string markContentTest = "##Item-01&TAG";
+            string aux=null;
+            if (markedContent.StartsWith("##") == true)
+            {
+                aux = markedContent.Remove(0, 2);
+            }
+            string[] Split = aux.Split(new Char[] { '&' });
+            return Split;
         }
-        private string ExtractPropNameinMark(string markContent) // Mark format = ##Item-i#propName
+        private bool CheckMarkConsistency(string markedContent)
         {
-            
+            bool Ok = false;
+            string markContentTest = "##Item-01&TAG";
+            if (markContentTest.StartsWith("##Item-") == true)
+            {
+                markContentTest = markContentTest.Remove(0, 7);
+                string itemNumber = markContentTest[0].ToString() + markContentTest[1].ToString();
+                int Num;
+                if (int.TryParse(itemNumber, out Num) == true)
+                {
+                    if (markContentTest[2].ToString() == "&")
+                    {
+                        Ok = true;
+                    }
+                }
+            }
+            else Ok = false;
+            return Ok;
         }
     }
 }
