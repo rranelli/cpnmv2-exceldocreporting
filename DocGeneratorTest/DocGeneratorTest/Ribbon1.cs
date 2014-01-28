@@ -8,14 +8,40 @@ using Microsoft.Office.Tools.Ribbon;
 using Excel = Microsoft.Office.Interop.Excel; 
 namespace DocGeneratorTest
 {
+    
     public partial class Ribbon1
     {
+        private const int mappingColumns = 4; //[fieldname, sheet row, sheet col, table col]    
+        private const string templateFilepath = @"C:\Users\augusto-ortiz\Desktop\TemplateTeste.xlsm";
+        private const string emptyTableFilePath = @"C:\Users\augusto-ortiz\Desktop\DataTeste.xlsm";
+        private const string filledTableFilePath = @"C:\Users\augusto-ortiz\Desktop\DataTestefilled.xlsm";
         private void Ribbon1_Load(object sender, RibbonUIEventArgs e)
         {
 
         }
 
-        private void button1_Click(object sender, RibbonControlEventArgs e){
+        private void button1_Click(object sender, RibbonControlEventArgs e)
+        {
+            //string fileName = @"C:\Users\augusto-ortiz\Desktop\TemplateTeste.xlsm";
+            //if (this.openFileDialog1.ShowDialog() == DialogResult.OK)
+            //{
+            //    // set the file name from the open file dialog
+            //    fileName = openFileDialog1.FileName;
+            //    //object fileName = openFileDialog1.FileName;
+            //    //object readOnly = false;
+            //    //object isVisible = true;
+            //    // Here is the way to handle parameters you don't care about in .NET
+            //    //object missing = System.Reflection.Missing.Value;
+            //    //// Make word visible, so you can see what's happening
+            //    //WordApp.Visible = true;
+            //    //// Open the document that was chosen by the dialog
+            //    //Word.Document aDoc = WordApp.Documents.Open(ref fileName, ref missing, ref readOnly, ref missing, ref missing, ref missing, ref missing, ref missing, ref missing, ref missing, ref missing, ref isVisible);
+            //    //// Activate the document so it shows up in front
+            //    //aDoc.Activate();
+            //    //// Add the copyright text and a line break
+            //    //WordApp.Selection.TypeText("Copyright C# Corner");
+            //    //Selection.TypeParagraph();
+            //}
             Excel.Application xlApp;
             Workbook xlWorkBookTemplate = new Excel.Workbook();
             Workbook xlWorkBookData = new Excel.Workbook();
@@ -23,11 +49,14 @@ namespace DocGeneratorTest
             _Worksheet xlWorkSheetData=xlWorkBookData.Sheets[1];
             Range xlRange;
             xlApp = new Excel.Application();
+            xlApp.Visible = true;
             object misValue = System.Reflection.Missing.Value;
             try
             {
                 //1. Reads the template and searches for the marked fields
-                xlWorkBookTemplate = xlApp.Workbooks.Open(@"C:\Users\augusto-ortiz\Desktop\TemplateTeste.xlsm");
+                xlWorkBookTemplate = xlApp.Workbooks.Open(templateFilepath);
+                //xlWorkBookTemplate = xlApp.Workbooks.Open((string) fileName);
+                xlWorkBookTemplate.Activate();
                 xlWorkSheetTemplate = xlWorkBookTemplate.Sheets[1];
                 xlRange = xlWorkSheetTemplate.UsedRange;
 
@@ -51,7 +80,7 @@ namespace DocGeneratorTest
                     }
                 }
                 string[,] mappingMatrix;
-                int mappingColumns = 4;//[fieldname, sheet row, sheet col, table col]
+                //int mappingColumns = 4;//[fieldname, sheet row, sheet col, table col]
                 mappingMatrix = new string[numOfItems, mappingColumns];
                 //b.Fills the mapping matrix
                 int aux = 0;
@@ -74,7 +103,7 @@ namespace DocGeneratorTest
                     }
                 }
                 //2.Builds the data sheet and fills its header line
-                xlWorkBookData = xlApp.Workbooks.Open(@"C:\Users\augusto-ortiz\Desktop\DataTeste.xlsm");
+                xlWorkBookData = xlApp.Workbooks.Open(emptyTableFilePath);
                 xlWorkSheetData = (Excel.Worksheet)xlWorkBookData.Worksheets.get_Item(1);
                 int headerRow = 1;
                 int atualCol, atualRow;
@@ -101,9 +130,6 @@ namespace DocGeneratorTest
                 releaseObject(xlApp);
             }
         }
-
-        
-
         private void button2_Click(object sender, RibbonControlEventArgs e)
         {
             Excel.Application xlApp = new Excel.Application();
@@ -117,7 +143,7 @@ namespace DocGeneratorTest
             try
             {
                 //1. Reads the marked template
-                xlWorkBookTemplate = xlApp.Workbooks.Open(@"C:\Users\augusto-ortiz\Desktop\TemplateTeste.xlsm");//replace it with a user generated path through a form 
+                xlWorkBookTemplate = xlApp.Workbooks.Open(templateFilepath);//replace it with a user generated path through a form 
                 xlWorkTemplate = xlWorkBookTemplate.Sheets[1];
                 xlRangeTemplate = xlWorkTemplate.UsedRange;
 
@@ -164,19 +190,19 @@ namespace DocGeneratorTest
                     }
                 }
                 //2.Checks/completes the mapping matrix with its data sheet relevant content
-                xlWorkBookData = xlApp.Workbooks.Open(@"C:\Users\augusto-ortiz\Desktop\DataTestefilled.xlsm");//replace it with a user generated path through a form 
+                xlWorkBookData = xlApp.Workbooks.Open(filledTableFilePath);//replace it with a user generated path through a form 
                 xlWorkData = (Excel.Worksheet)xlWorkBookData.Worksheets.get_Item(1);//different sheet? 
                 xlRangeData = xlWorkData.UsedRange;
                 int headerRow = 1;//make it a constant?
                 string colField;
                 bool foundAllFields = true;
-                int tableItems = xlRangeData.Columns.Count;
+                int tableCols = xlRangeData.Columns.Count;
                 long tableRows = xlRangeData.Rows.Count;
                 //a. Iterates through each fieldname in the mapping mattrix and searches it in the data sheet in order to complete the mapping
                 for (int i = 0; i < numOfItems; i++)
                 {
                     cellText = mappingMatrix[i, 0];
-                    for(int j=0; j<tableItems;j++)
+                    for(int j=0; j<tableCols;j++)
                     {
                         colField = xlWorkData.Cells[headerRow, j + 1].Value2.ToString();
                         foundAllFields = false;
@@ -286,6 +312,19 @@ namespace DocGeneratorTest
                 obj = null;
                 MessageBox.Show("Unable to release the Object " + ex.ToString());
             }
+        }
+        private int ExtractItemNumberinMark()// Mark format = #Item-i#propName
+        {
+            string markContent = "#Item-1#TAG";
+            string aux,aux2;
+            //new char() = # ;
+            aux = markContent.Split("#");
+            aux2 = markContent.Substring();
+
+        }
+        private string ExtractPropNameinMark(string markContent) // Mark format = ##Item-i#propName
+        {
+            
         }
     }
 }
