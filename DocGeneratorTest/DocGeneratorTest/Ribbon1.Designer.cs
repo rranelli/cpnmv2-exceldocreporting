@@ -38,6 +38,7 @@
             this.group1 = this.Factory.CreateRibbonGroup();
             this.button1 = this.Factory.CreateRibbonButton();
             this.button2 = this.Factory.CreateRibbonButton();
+            this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.tab1.SuspendLayout();
             this.group1.SuspendLayout();
             // 
@@ -67,6 +68,10 @@
             this.button2.Name = "button2";
             this.button2.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.button2_Click);
             // 
+            // openFileDialog1
+            // 
+            this.openFileDialog1.FileName = "openFileDialog1";
+            // 
             // Ribbon1
             // 
             this.Name = "Ribbon1";
@@ -86,6 +91,7 @@
         internal Microsoft.Office.Tools.Ribbon.RibbonGroup group1;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton button1;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton button2;
+        private System.Windows.Forms.OpenFileDialog openFileDialog1;
     }
 
     partial class ThisRibbonCollection
