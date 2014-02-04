@@ -1,0 +1,532 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Windows.Forms;
+using Microsoft.Office.Interop.Excel;
+using Microsoft.Office.Tools.Ribbon;
+using Excel = Microsoft.Office.Interop.Excel; 
+namespace DocGeneratorTest
+{
+    
+    public partial class Ribbon1
+    {
+        private const int mappingColumns = 4; //[fieldname, sheet row, sheet col, table col]    
+        private const int headerRow = 1;
+        
+        private string templateFilepath;
+        private string emptyTableFilePath;
+        private string filledTableFilePath;
+
+        private const string prefixMark = "##";
+        private const string prefixPropMark = "##Item-01";
+        private const string prefixForConsistencyTest = "##Item-";
+        private const string delimitator = "&";
+        
+        private readonly object _misValue = System.Reflection.Missing.Value; 
+
+        private void Ribbon1Load(object sender, RibbonUIEventArgs e)
+        {
+        }
+        //"PREPARAR DOC" BUTTON
+        private void Button1Click(object sender, RibbonControlEventArgs e)
+        {
+            var fdTemplate = new OpenFileDialog();
+            MessageBox.Show("Selecione o arquivo de template");
+            if (fdTemplate.ShowDialog() == DialogResult.OK)
+            {
+                templateFilepath = fdTemplate.FileName;
+            }
+            else
+            {
+                throw new ArgumentException();
+            }
+            
+            var fdData = new OpenFileDialog();
+            MessageBox.Show("Selecione o arquivo destino");
+            if (fdData.ShowDialog() == DialogResult.OK)
+            {
+                emptyTableFilePath = fdData.FileName;
+            }
+            else
+            {
+                throw new ArgumentException();
+            }
+            //PLACE EVERYTHING UNDERNEATH IN SEPARATED METHODS
+            var xlApp = new Excel.Application {Visible = true};
+            Workbook xlWorkBookTemplate = null;
+            Workbook xlWorkBookData = null;
+            
+            try
+            {
+                //1. Reads the template and searches for the marked fields
+                xlWorkBookTemplate = xlApp.Workbooks.Open(templateFilepath);
+                xlWorkBookData = xlApp.Workbooks.Open(emptyTableFilePath);
+                _Worksheet xlWorkSheetTemplate = xlWorkBookTemplate.Sheets[1];
+                _Worksheet xlWorkSheetData = xlWorkBookData.Sheets[1];
+                var xlRange = xlWorkSheetTemplate.UsedRange;
+
+                var rowCount = xlRange.Rows.Count;
+                var colCount = xlRange.Columns.Count;
+                var firstRow = xlRange.Row;
+                var firstCol = xlRange.Column;
+
+                int numOfProps;
+                int numOfItems;
+                int countAllProps;
+                //var mappingMatrix = MappingMatrix(rowCount, xlRange, colCount, firstRow, firstCol, out numOfProps, out numOfItems, out countAllProps);
+                var mappingMatrix2 = MappingMatrixv2(rowCount, xlRange, colCount, firstRow, firstCol, out numOfProps, out numOfItems, out countAllProps);
+                //2.Builds the data sheet and fills its header line
+                for (var i = 0; i != numOfProps ; i++)
+                {
+                    xlWorkSheetData.Cells[headerRow, i+1] =mappingMatrix2[i, 0];
+                }
+                xlWorkBookData.Activate();
+                MessageBox.Show("Planilha de dados pronta para ser preenchida");
+            }
+            catch(ArgumentOutOfRangeException)
+            {
+                xlApp.Visible = false;
+                MessageBox.Show("ERROR: Bad input in one of the template cells \n Check if all the cells of template are valid and restart everything");
+            }
+            catch(ArgumentException)
+            {
+                xlApp.Visible = false;
+                MessageBox.Show("ERROR: No files were selected, start again");
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("Unable to open file ");
+                xlApp.Quit();
+                ReleaseObject(xlApp);
+            }
+            finally
+            {
+                if (xlWorkBookTemplate!=null)
+                {
+                    xlWorkBookTemplate.Close(true, _misValue, _misValue);
+                    ReleaseObject(xlWorkBookTemplate);
+                }
+                if (xlWorkBookData != null)
+                {
+                    xlWorkBookData.Save();
+                }
+            }
+        }
+        //"GERARDOC" Button
+        private void Button2Click(object sender, RibbonControlEventArgs e)
+        {
+            var fdTemplate = new OpenFileDialog();
+            MessageBox.Show("Selecione o arquivo de template com os campos marcados");
+            if (fdTemplate.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                templateFilepath = fdTemplate.FileName;
+            }
+            else
+            {
+                throw new ArgumentException();
+            }
+            
+            var fdTable = new OpenFileDialog();
+            MessageBox.Show("Selecione a planilha de dados preenchida e ordenada");
+            if (fdTable.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                filledTableFilePath = fdTable.FileName;
+            }
+            else
+            {
+                throw new ArgumentException();
+            }
+
+            var xlApp = new Excel.Application { Visible = true };
+            Workbook xlWorkBookTemplate = null;
+            Workbook xlWorkBookData = null;
+            
+            try
+            {
+                //1. Reads the marked template
+                xlWorkBookTemplate = xlApp.Workbooks.Open(templateFilepath);
+                xlWorkBookData = xlApp.Workbooks.Open(filledTableFilePath);
+                _Worksheet xlWorkSheetTemplate = xlWorkBookTemplate.Sheets[1];
+                _Worksheet xlWorkSheetData = xlWorkBookData.Sheets[1];
+                var xlRangeTemplate = xlWorkSheetTemplate.UsedRange;
+
+                var rowCount = xlRangeTemplate.Rows.Count;
+                var colCount = xlRangeTemplate.Columns.Count;
+                var firstRow = xlRangeTemplate.Row;
+                var firstCol = xlRangeTemplate.Column;
+
+                int numOfItems;
+                int numOfProps;
+                int countAllProps;
+                //var mappingMatrix = MappingMatrix(rowCount, xlRangeTemplate, colCount, firstRow, firstCol, out numOfProps, out numOfItems, out countAllProps);
+                var mappingMatrix2 = MappingMatrixv2(rowCount, xlRangeTemplate, colCount, firstRow, firstCol, out numOfProps, out numOfItems, out countAllProps);
+
+                //2.Checks/completes the mapping matrix with its data sheet relevant content
+                var xlRangeData = xlWorkSheetData.UsedRange;
+                var foundField = false;
+                var tableCols = xlRangeData.Columns.Count;
+                long tableRows = xlRangeData.Rows.Count;
+                //a. Iterates through each fieldname in the mapping matrix and searches it in the data sheet in order to complete the mapping
+                for (var i = 0; i < numOfProps; i++)
+                {
+                    var cellText = mappingMatrix2[i, 0];
+                    for(var j=0; j!=tableCols;j++)
+                    {
+                        string colField = xlWorkSheetData.Cells[headerRow, j + 1].Value2.ToString();
+                        if(colField==cellText)
+                        {
+                            //mappingMatrix[i, 3] = (j + 1).ToString();
+                            mappingMatrix2[i, 1] = (j + 1).ToString();
+                            foundField = true;
+                        }
+                        if(foundField==false && j==tableCols-1)
+                        {
+                            throw new InvalidOperationException();
+                        }
+                    }
+                }
+                //3. Data abstraction using the mapping matrix
+                //a.Abstracts the data sheet
+                var table = new Dictionary<long, Dictionary<string, string>>();
+                for (var i = headerRow+1; i != tableRows+1; i++)
+                {
+                    //Gets the coordinates in the mapping matrix and adds the fieldname and fieldvalue to the dictionary
+                    var row = new Dictionary<string, string>();
+                    for(var j=0; j<numOfProps; j++)
+                    {
+                        var fieldName = mappingMatrix2[j, 0];
+                        int col = Convert.ToInt32(mappingMatrix2[j, 1]);
+                        string fieldValue = xlWorkSheetData.Cells[i, col].Value2.ToString();
+                        row.Add(fieldName, fieldValue);
+                    }
+                    table.Add(i, row);
+                }
+                //b.Abstracts Filled Template 
+                var sheets = new List<Dictionary<long, Dictionary<string, string>>>();
+                var numOfSheets=0;
+                
+                if (table.Count%numOfItems!=0) numOfSheets=(table.Count/numOfItems)+1;
+                else numOfSheets = table.Count / numOfItems;
+                var itemCounter = 0;
+                var keys = table.Keys.ToArray();
+
+                for (int sheetCounter = 0; sheetCounter != numOfSheets; sheetCounter++)
+                {
+                    var sheet = new Dictionary<long, Dictionary<string, string>>();
+                    for (var itemNumber = sheetCounter * numOfItems; itemNumber != (sheetCounter+1) * numOfItems && itemNumber != keys.Count(); itemNumber++)
+                    {
+                        var itemKey = keys[itemNumber];
+                        var item = table[itemKey];
+                        sheet.Add(itemKey, item);
+                    }
+                    sheets.Add(sheet);
+                }
+                //4.Gets the abstracted Filled Template and builds each page of the final document using the mapping matrix
+                int space = 0;//number of rows between sheets
+                foreach (var sheet in sheets)
+                {
+                    itemCounter = 0;
+                    //xlRangeTemplate.Copy(xlWorkSheetTemplate.Cells[firstRow+ space*rowCount + 1, firstCol]);
+                    //Pass everything underneath to ExportData
+                    foreach (var key in sheet.Keys)
+                    {
+                        foreach (KeyValuePair<string, string> itemProp in sheet[key])
+                        {
+                            var propName = itemProp.Key;
+                            var propValue = itemProp.Value;
+                            //Searches fieldName in mapping matrix -> Try to use a more efficient method/algorithm for the search and replace
+                            var row = 0;
+                            var col = 0;
+                            for (var j = 0; j != numOfProps; j++)
+                            {
+                                if (mappingMatrix2[j, 0] != propName) continue;
+                                row = Convert.ToInt32(mappingMatrix2[j,2+2*itemCounter]);
+                                col = Convert.ToInt32(mappingMatrix2[j,2+2*itemCounter+1]);
+                            } 
+                            xlWorkSheetTemplate.Cells[row + firstRow * rowCount, col] = propValue;//Fill template with the pertinent data
+                        }
+                        itemCounter++;
+                    }
+                    space++;
+                }
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                xlApp.Visible = true;
+                MessageBox.Show("ERROR: Bad input in one of the template cells \n Check if all the cells of template are valid and restart everything");
+            }
+            catch (ArgumentException)
+            {
+                xlApp.Visible = true;
+                MessageBox.Show("ERROR: No files were selected, start again");
+            }
+            catch (InvalidOperationException)
+            {
+                xlApp.Visible = true;
+                MessageBox.Show("ERROR: There are missing columns in the Data Sheet");
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("Unable to open file ");
+                xlApp.Quit();
+                ReleaseObject(xlApp);
+            }
+
+            finally
+            {
+                if (xlWorkBookTemplate != null)
+                {
+                    xlWorkBookTemplate.Activate();
+                }
+                if (xlWorkBookData != null)
+                {
+                    xlWorkBookData.Close(true, _misValue, _misValue);
+                    ReleaseObject(xlWorkBookData);
+                }
+
+            }
+        }
+
+        private static void ReleaseObject(object obj)
+        {
+            try
+            {
+                System.Runtime.InteropServices.Marshal.ReleaseComObject(obj);
+                obj = null;
+            }
+            catch (Exception ex)
+            {
+                obj = null;
+                MessageBox.Show("Unable to release the Object " + ex.ToString());
+            }
+        }
+        private string[,] MappingMatrix(int rowCount, Range xlRange, int colCount, int firstRow, int firstCol,
+                                        out int numOfProps, out int numOfItems, out int countAllProps)
+        {
+            string cellText;
+            numOfProps = 0;
+            countAllProps = 0;
+            //a. Counts the number of distinct items properties to size the mapping matrix accordingly (its considered that all the items in a particular template sheet shares the same properties and theres at least 1 item)
+            for (var i = 1; i < rowCount + 1; i++)
+            {
+                for (var j = 1; j < colCount + 1; j++)
+                {
+                    if (xlRange.Cells[i, j].Value2 != null)
+                    {
+                        cellText = xlRange.Cells[i, j].Value2.ToString();
+                        if (cellText.StartsWith(prefixMark))
+                        {
+                            countAllProps++;
+                            if (cellText.StartsWith(prefixPropMark)) numOfProps++;
+                            if (CheckMarkConsistency(cellText) == false)
+                                throw new ArgumentOutOfRangeException();
+                        }
+                    }
+                }
+            }
+            numOfItems = countAllProps / numOfProps;
+            var mappingMatrix = new string[numOfProps, mappingColumns];
+            //b.Fills the mapping matrix
+            var aux = 0;
+            for (var i = 1; i < rowCount + 1; i++)
+            {
+                for (var j = 1; j < colCount + 1; j++)
+                {
+                    if (xlRange.Cells[i, j].Value2 != null)
+                    {
+                        cellText = xlRange.Cells[i, j].Value2.ToString();
+                        if (cellText.StartsWith(prefixPropMark))
+                        {
+                            mappingMatrix[aux, 0] = ExtractMarkContent(cellText)[1];
+                            mappingMatrix[aux, 1] = (i + firstRow - 1).ToString();
+                            mappingMatrix[aux, 2] = (j + firstCol - 1).ToString();
+                            mappingMatrix[aux, 3] = (aux + 1).ToString();
+                            aux++;
+                        }
+                    }
+                }
+            }
+            return mappingMatrix;
+        }
+        private string[] ExtractMarkContent(string markedContent)
+        {
+            string aux=null;
+            if (markedContent.StartsWith(prefixMark))
+            {
+                aux = markedContent.Remove(0, 2);
+            }
+            string[] split = aux.Split(delimitator.ToCharArray());
+            return split;
+        }
+        private bool CheckMarkConsistency(string markedContent)
+        {
+            if (markedContent.StartsWith(prefixForConsistencyTest))
+            {
+                markedContent = markedContent.Remove(0, 7);
+                string itemNumber = markedContent[0].ToString() + markedContent[1].ToString();
+                int num;
+                if (int.TryParse(itemNumber, out num))
+                {
+                    if (markedContent[2].ToString() == delimitator)
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+        private string[,] MappingMatrixv2(int rowCount, Range xlRange, int colCount, int firstRow, int firstCol,
+                                        out int numOfProps, out int numOfItems, out int countAllProps)
+        {
+            //mappingMatrix format : [fieldname , tablecol, sheetrowforItem1, sheetcolforItem1, sheetrowforItem2, sheetcolforItem2 ,...]
+            countAllProps = 0;
+            var props= new List<string>();
+            //a. Counts the number of distinct items properties to size the mapping matrix accordingly (its considered that all the items in a particular template sheet shares the same properties and theres at least 1 item)
+            for (var i = 1; i < rowCount + 1; i++)
+            {
+                for (var j = 1; j < colCount + 1; j++)
+                {
+                    if (xlRange.Cells[i, j].Value2 != null)
+                    {
+                        string cellText = xlRange.Cells[i, j].Value2.ToString();
+                        if (cellText.StartsWith(prefixMark))
+                        {
+                            countAllProps++;
+                            if (cellText.StartsWith(prefixPropMark)) props.Add(cellText.Remove(0,10));
+                            if (CheckMarkConsistency(cellText) == false) throw new ArgumentOutOfRangeException();
+                        }
+                    }
+                }
+            }
+            numOfProps = props.Count;
+            numOfItems = countAllProps / numOfProps;
+            //b.Fills the mapping matrix
+            var mappingMatrix = new string[numOfProps,2 + 2*numOfItems];
+            var propsArray = props.ToArray();
+            for(var i=0; i!= numOfProps;i++)
+            {
+                mappingMatrix[i, 0] = propsArray[i];
+                mappingMatrix[i, 1] = (i + 1).ToString();
+            }
+            for (var i = 0; i != numOfProps;i++)
+            {
+                var searchedProp = propsArray[i];
+                for (var j=0; j!=numOfItems; j++)
+                {
+                    string searchedContent;
+                    if(j<10) searchedContent= prefixForConsistencyTest + "0" + (j+1).ToString() + delimitator + searchedProp;
+                    else searchedContent = prefixForConsistencyTest + (j+1).ToString() + delimitator + searchedProp;
+                    var cell = xlRange.Find(searchedContent);
+                    mappingMatrix[i, 2+2*j] = cell.Row.ToString();
+                    mappingMatrix[i, 2+2*j+1] = cell.Column.ToString();
+                }
+            }
+            return mappingMatrix;
+        }
+        //public static IEnumerable<IEnumerable<T>> InBatchesOf<T>(IEnumerable<T> items, int batchSize)
+        //{
+        //    var batch = new List<T>(batchSize);
+        //    foreach (var item in items)
+        //    {
+        //        batch.Add(item);
+
+        //        if (batch.Count == batchSize)
+        //        {
+        //            yield return batch;
+        //            batch = new List<T>();
+        //        }
+        //    }
+
+        //    if (batch.Count != 0)
+        //    {
+        //        //can't be batch size or would've yielded above
+        //        batch.TrimExcess();
+        //        yield return batch;
+        //    }
+        //}
+    }
+}
+//static class LinqExtensions
+//{
+//    public static IEnumerable<IEnumerable<T>> Split<T>( IEnumerable<T> dictionary, int parts)
+//    {
+//        return dictionary.Select((item, index) => new { index, item })
+//                         .GroupBy(x => x.index % parts)
+//                         .Select(x => x.Select(y => y.item));
+//    }
+//}
+
+//var itemsAdded = 0;
+//bool LastSheet;
+//bool sheetReady;
+
+//foreach (var row in table.Keys)
+//{
+//    if(itemCounter==0)
+//    {
+//        sheet=new Dictionary<long, Dictionary<string, string>>();
+
+//    }
+//    else if (sheetReady)
+//    {
+
+//    }
+//    else
+//    {
+
+//    }
+//    if (itemCounter == numOfItems || (LastSheet == true && itemCounter == table.Count % numOfItems)) sheetReady = true;
+//    if (itemCounter != numOfItems)
+//    {
+//        //var sheet = new Dictionary<long, Dictionary<string, string>>();
+//        foreach (var rowKey in rowsToAddToSheet)
+//        {
+//            var itemKey = rowKey;
+//            var item = table[rowKey];
+//            sheet.Add(itemKey, item);
+//            itemsAdded++;
+//            itemCounter = 0;
+//        }
+//        sheets.Add(sheet);
+//    }
+//}
+//sheets = LinqExtensions.Split(table, numOfSheets);
+//sheets = InBatchesOf(table, numOfSheets);
+//int[] segment = new ArraySegment<int>(array, i, step).ToArray();
+//foreach (var key in table.Keys)
+//{
+//    //add items to the sheet until completion 
+//    for (itemCounter=0; itemCounter!= numOfItems;itemCounter++)
+//    {
+//        var items = new Dictionary<long, Dictionary<string, string>>();
+//        var itemKey = key;
+//        var item = table[key];
+//        items.Add(itemKey, item);
+//        //add the filled sheet to sheets
+//        if (itemCounter == numOfItems)
+//        {
+//            var sheet = new Dictionary<long, Dictionary<string, string>>();
+//            foreach (var pair in items)
+//            {
+//                sheet.Add(pair.Key, pair.Value);
+//            }
+//            sheets.Add(sheet);
+//            itemCounter = 0;
+//        }    
+//    } 
+//}
+//foreach (var key in table.Keys)// selects a row in the table
+//{
+//    for(var sheetCounter=0; sheetCounter!=numOfSheets; sheetCounter++)
+//    {
+//        var sheet = new Dictionary<long, Dictionary<string, string>>();
+//        for(var itemCounter = 1; itemCounter!=numOfItems;itemCounter++)
+//        {
+//            var itemKey = table//in the future replace it for a better function that searches for a particular prop to generate the key or sth
+//            var item = table[key];
+//            sheet.Add(key, item);
+//        }
+//        sheets.Add(sheet);
+//        sheetCounter++;
+//    }
+//}
