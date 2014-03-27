@@ -1,4 +1,10 @@
-﻿namespace DocGeneratorTest
+﻿using System;
+using System.Windows.Forms;
+using Microsoft.Office.Interop.Excel;
+using Microsoft.Office.Tools.Ribbon;
+using Application = Microsoft.Office.Interop.Excel.Application;
+
+namespace DocGeneratorTest
 {
     partial class Ribbon1 : Microsoft.Office.Tools.Ribbon.RibbonBase
     {
@@ -38,7 +44,6 @@
             this.group1 = this.Factory.CreateRibbonGroup();
             this.button1 = this.Factory.CreateRibbonButton();
             this.button2 = this.Factory.CreateRibbonButton();
-            this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.tab1.SuspendLayout();
             this.group1.SuspendLayout();
             // 
@@ -58,26 +63,22 @@
             // 
             // button1
             // 
-            this.button1.Label = "Preparar";
+            this.button1.Label = "Preparar Documento";
             this.button1.Name = "button1";
-            this.button1.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.button1_Click);
+            this.button1.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.PrepDoc);
             // 
             // button2
             // 
-            this.button2.Label = "GerarDoc";
+            this.button2.Label = "Preencher Documento";
             this.button2.Name = "button2";
-            this.button2.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.button2_Click);
-            // 
-            // openFileDialog1
-            // 
-            this.openFileDialog1.FileName = "openFileDialog1";
+            this.button2.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.GenDoc);
             // 
             // Ribbon1
             // 
             this.Name = "Ribbon1";
             this.RibbonType = "Microsoft.Excel.Workbook";
             this.Tabs.Add(this.tab1);
-            this.Load += new Microsoft.Office.Tools.Ribbon.RibbonUIEventHandler(this.Ribbon1_Load);
+            this.Load += new Microsoft.Office.Tools.Ribbon.RibbonUIEventHandler(this.Ribbon1Load);
             this.tab1.ResumeLayout(false);
             this.tab1.PerformLayout();
             this.group1.ResumeLayout(false);
@@ -89,9 +90,8 @@
 
         internal Microsoft.Office.Tools.Ribbon.RibbonTab tab1;
         internal Microsoft.Office.Tools.Ribbon.RibbonGroup group1;
-        internal Microsoft.Office.Tools.Ribbon.RibbonButton button1;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton button2;
-        private System.Windows.Forms.OpenFileDialog openFileDialog1;
+        internal RibbonButton button1;
     }
 
     partial class ThisRibbonCollection

@@ -1,0 +1,16 @@
+C:\Users\augusto-ortiz\Documents\Visual Studio 2010\Projects\DocGeneratorTest\DocGeneratorTest\bin\Debug\DocGeneratorTest.dll
+C:\Users\augusto-ortiz\Documents\Visual Studio 2010\Projects\DocGeneratorTest\DocGeneratorTest\bin\Debug\DocGeneratorTest.pdb
+C:\Users\augusto-ortiz\Documents\Visual Studio 2010\Projects\DocGeneratorTest\DocGeneratorTest\bin\Debug\DocGeneratorTest.dll.manifest
+C:\Users\augusto-ortiz\Documents\Visual Studio 2010\Projects\DocGeneratorTest\DocGeneratorTest\bin\Debug\DocGeneratorTest.vsto
+C:\Users\augusto-ortiz\Documents\Visual Studio 2010\Projects\DocGeneratorTest\DocGeneratorTest\bin\Debug\Microsoft.Office.Tools.Common.v4.0.Utilities.dll
+C:\Users\augusto-ortiz\Documents\Visual Studio 2010\Projects\DocGeneratorTest\DocGeneratorTest\bin\Debug\Microsoft.Office.Tools.Common.v4.0.Utilities.xml
+C:\Users\augusto-ortiz\Documents\Visual Studio 2010\Projects\DocGeneratorTest\DocGeneratorTest\obj\Debug\DocGeneratorTest.Properties.Resources.resources
+C:\Users\augusto-ortiz\Documents\Visual Studio 2010\Projects\DocGeneratorTest\DocGeneratorTest\obj\Debug\DocGeneratorTest.csproj.GenerateResource.Cache
+C:\Users\augusto-ortiz\Documents\Visual Studio 2010\Projects\DocGeneratorTest\DocGeneratorTest\obj\Debug\DocGeneratorTest.dll
+C:\Users\augusto-ortiz\Documents\Visual Studio 2010\Projects\DocGeneratorTest\DocGeneratorTest\obj\Debug\DocGeneratorTest.pdb
+C:\Users\augusto-ortiz\Documents\Visual Studio 2010\Projects\DocGeneratorTest\DocGeneratorTest\obj\Debug\DocGeneratorTest.csprojResolveAssemblyReference.cache
+C:\Users\augusto-ortiz\Documents\Visual Studio 2010\Projects\DocGeneratorTest\DocGeneratorTest\obj\Debug\DocGeneratorTest.Ribbon1.resources
+C:\Users\augusto-ortiz\Documents\Visual Studio 2010\Projects\DocGeneratorTest\DocGeneratorTest\bin\Debug\nunit.framework.dll
+C:\Users\augusto-ortiz\Documents\Visual Studio 2010\Projects\DocGeneratorTest\DocGeneratorTest\bin\Debug\nunit.framework.xml
+C:\Users\augusto-ortiz\Documents\Visual Studio 2010\Projects\DocGeneratorTest\DocGeneratorTest\bin\Debug\Chemtech.Autoproj.DocGenerator.dll
+C:\Users\augusto-ortiz\Documents\Visual Studio 2010\Projects\DocGeneratorTest\DocGeneratorTest\bin\Debug\Chemtech.Autoproj.DocGenerator.pdb

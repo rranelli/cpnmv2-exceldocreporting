@@ -1,0 +1,5 @@
+<Modules>
+  <Module PersistentId="4F1E8A3C-7FFF-49FB-9DCB-5D4CF1E5D37A" ModuleId="DocGeneratorTest" />
+  <Module PersistentId="0B10F052-1234-498B-88FC-687036DAC3C7" ModuleId="TestProject1" />
+  <Module PersistentId="68DB0D92-D4F5-4AAC-A49E-0CEBC48C3295" ModuleId="Chemtech.Autoproj.DocGenerator" />
+</Modules>

@@ -1,0 +1,12 @@
+C:\Users\augusto-ortiz\Documents\Visual Studio 2010\Projects\DocGeneratorTest\TestProject1\bin\Debug\TestProject1.dll
+C:\Users\augusto-ortiz\Documents\Visual Studio 2010\Projects\DocGeneratorTest\TestProject1\bin\Debug\TestProject1.pdb
+C:\Users\augusto-ortiz\Documents\Visual Studio 2010\Projects\DocGeneratorTest\TestProject1\obj\Debug\TestProject1.csprojResolveAssemblyReference.cache
+C:\Users\augusto-ortiz\Documents\Visual Studio 2010\Projects\DocGeneratorTest\TestProject1\obj\Debug\TestProject1.dll
+C:\Users\augusto-ortiz\Documents\Visual Studio 2010\Projects\DocGeneratorTest\TestProject1\obj\Debug\TestProject1.pdb
+C:\Users\augusto-ortiz\Documents\Visual Studio 2010\Projects\DocGeneratorTest\TestProject1\bin\Debug\nunit.framework.dll
+C:\Users\augusto-ortiz\Documents\Visual Studio 2010\Projects\DocGeneratorTest\TestProject1\bin\Debug\nunit.framework.xml
+C:\Users\augusto-ortiz\Documents\Visual Studio 2010\Projects\DocGeneratorTest\TestProject1\bin\Debug\OrderedTest1.orderedtest
+C:\Users\augusto-ortiz\Documents\Visual Studio 2010\Projects\DocGeneratorTest\TestProject1\bin\Debug\Rhino.Mocks.dll
+C:\Users\augusto-ortiz\Documents\Visual Studio 2010\Projects\DocGeneratorTest\TestProject1\bin\Debug\Rhino.Mocks.xml
+C:\Users\augusto-ortiz\Documents\Visual Studio 2010\Projects\DocGeneratorTest\TestProject1\bin\Debug\Chemtech.Autoproj.DocGenerator.dll
+C:\Users\augusto-ortiz\Documents\Visual Studio 2010\Projects\DocGeneratorTest\TestProject1\bin\Debug\Chemtech.Autoproj.DocGenerator.pdb
