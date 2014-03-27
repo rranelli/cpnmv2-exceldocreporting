@@ -3,7 +3,19 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DocGeneratorTest", "DocGeneratorTest\DocGeneratorTest.csproj", "{4F1E8A3C-7FFF-49FB-9DCB-5D4CF1E5D37A}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{C0AF7068-3386-4899-80EA-0B225EC53C41}"
+	ProjectSection(SolutionItems) = preProject
+		DocGeneratorTest.vsmdi = DocGeneratorTest.vsmdi
+		Local.testsettings = Local.testsettings
+		TraceAndTestImpact.testsettings = TraceAndTestImpact.testsettings
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chemtech.Autoproj.DocGenerator", "Chemtech.Autoproj.DocGenerator\Chemtech.Autoproj.DocGenerator.csproj", "{68DB0D92-D4F5-4AAC-A49E-0CEBC48C3295}"
+EndProject
 Global
+	GlobalSection(TestCaseManagementSettings) = postSolution
+		CategoryFile = DocGeneratorTest.vsmdi
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
@@ -13,6 +25,10 @@ Global
 		{4F1E8A3C-7FFF-49FB-9DCB-5D4CF1E5D37A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4F1E8A3C-7FFF-49FB-9DCB-5D4CF1E5D37A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4F1E8A3C-7FFF-49FB-9DCB-5D4CF1E5D37A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{68DB0D92-D4F5-4AAC-A49E-0CEBC48C3295}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{68DB0D92-D4F5-4AAC-A49E-0CEBC48C3295}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{68DB0D92-D4F5-4AAC-A49E-0CEBC48C3295}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{68DB0D92-D4F5-4AAC-A49E-0CEBC48C3295}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

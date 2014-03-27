@@ -1,0 +1,11 @@
+C:\Users\augusto-ortiz\Documents\Visual Studio 2010\Projects\DocGeneratorTest\Chemtech.Autoproj.DocGenerator\bin\Debug\Chemtech.Autoproj.DocGenerator.dll.config
+C:\Users\augusto-ortiz\Documents\Visual Studio 2010\Projects\DocGeneratorTest\Chemtech.Autoproj.DocGenerator\bin\Debug\Chemtech.Autoproj.DocGenerator.dll
+C:\Users\augusto-ortiz\Documents\Visual Studio 2010\Projects\DocGeneratorTest\Chemtech.Autoproj.DocGenerator\bin\Debug\Chemtech.Autoproj.DocGenerator.pdb
+C:\Users\augusto-ortiz\Documents\Visual Studio 2010\Projects\DocGeneratorTest\Chemtech.Autoproj.DocGenerator\obj\Debug\Chemtech.Autoproj.DocGenerator.dll
+C:\Users\augusto-ortiz\Documents\Visual Studio 2010\Projects\DocGeneratorTest\Chemtech.Autoproj.DocGenerator\obj\Debug\Chemtech.Autoproj.DocGenerator.pdb
+C:\Users\augusto-ortiz\Documents\Visual Studio 2010\Projects\DocGeneratorTest\Chemtech.Autoproj.DocGenerator\obj\Debug\Chemtech.Autoproj.DocGenerator.csprojResolveAssemblyReference.cache
+C:\Users\augusto-ortiz\Documents\Visual Studio 2010\Projects\DocGeneratorTest\Chemtech.Autoproj.DocGenerator\bin\Debug\nunit.framework.dll
+C:\Users\augusto-ortiz\Documents\Visual Studio 2010\Projects\DocGeneratorTest\Chemtech.Autoproj.DocGenerator\bin\Debug\nunit.framework.xml
+C:\Users\augusto-ortiz\Documents\Visual Studio 2010\Projects\DocGeneratorTest\Chemtech.Autoproj.DocGenerator\obj\Debug\Chemtech.Autoproj.DocGenerator.csproj.GenerateResource.Cache
+C:\Users\augusto-ortiz\Documents\Visual Studio 2010\Projects\DocGeneratorTest\Chemtech.Autoproj.DocGenerator\obj\Debug\Chemtech.Autoproj.DocGenerator.Interface.SelectTemplateForm.resources
+C:\Users\augusto-ortiz\Documents\Visual Studio 2010\Projects\DocGeneratorTest\Chemtech.Autoproj.DocGenerator\obj\Debug\Chemtech.Autoproj.DocGenerator.Interface.SelectTemplateFormForGen.resources

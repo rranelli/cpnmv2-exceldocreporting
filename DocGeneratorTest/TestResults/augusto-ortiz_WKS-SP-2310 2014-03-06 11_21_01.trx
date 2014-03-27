@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<TestRun id="8b3bb164-bad4-4117-9bbe-fb0bcdc6519e" name="augusto-ortiz@WKS-SP-2310 2014-03-06 11:21:01" runUser="CHEMDOMAIN\augusto-ortiz" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <TestSettings name="Local" id="ca5002e4-8a8a-4a2a-a639-9482188e6ac1">
+    <Description>These are default test settings for a local test run.</Description>
+    <Deployment enabled="false" runDeploymentRoot="augusto-ortiz_WKS-SP-2310 2014-03-06 11_21_01" />
+    <Execution>
+      <TestTypeSpecific />
+      <AgentRule name="Execution Agents">
+      </AgentRule>
+    </Execution>
+  </TestSettings>
+  <Times creation="2014-03-06T11:21:01.1105194-03:00" queuing="2014-03-06T11:21:02.7796980-03:00" start="2014-03-06T11:21:03.2320922-03:00" finish="2014-03-06T11:21:03.6064874-03:00" />
+  <ResultSummary outcome="Completed">
+    <Counters total="1" executed="1" passed="1" error="0" failed="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+  </ResultSummary>
+  <TestDefinitions>
+    <OrderedTest name="OrderedTest1" storage="c:\users\augusto-ortiz\documents\visual studio 2010\projects\docgeneratortest\testproject1\orderedtest1.orderedtest" id="fe04e87e-d0ef-425d-80d4-d7fb68e9afcb">
+      <Execution id="4ff0d64e-8bdb-4e31-a5d3-f17dc8a805b7" />
+    </OrderedTest>
+  </TestDefinitions>
+  <TestLists>
+    <TestList name="Results Not in a List" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="All Loaded Results" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <TestEntries>
+    <TestEntry isTransparent="false" testId="fe04e87e-d0ef-425d-80d4-d7fb68e9afcb" executionId="4ff0d64e-8bdb-4e31-a5d3-f17dc8a805b7" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <Results>
+    <TestResultAggregation executionId="4ff0d64e-8bdb-4e31-a5d3-f17dc8a805b7" testId="fe04e87e-d0ef-425d-80d4-d7fb68e9afcb" testName="OrderedTest1" computerName="WKS-SP-2310" startTime="2014-03-06T11:21:03.4504894-03:00" endTime="2014-03-06T11:21:03.4816890-03:00" testType="ec4800e8-40e5-4ab3-8510-b8bf29b1904d" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="4ff0d64e-8bdb-4e31-a5d3-f17dc8a805b7">
+    </TestResultAggregation>
+  </Results>
+</TestRun>
